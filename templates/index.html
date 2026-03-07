@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MNIST Digit Predictor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    canvas { border: 2px solid #333; touch-action: none; }
+    .row { display: flex; gap: 16px; align-items: center; margin-top: 12px; }
+    button { padding: 10px 14px; cursor: pointer; }
+    #result { font-size: 18px; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <h2>Draw a digit (0-9)</h2>
+  <canvas id="canvas" width="280" height="280"></canvas>
+
+  <div class="row">
+    <button id="clearBtn">Clear</button>
+    <button id="predictBtn">Predict</button>
+  </div>
+
+  <div id="result"></div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.lineWidth = 20;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = "black";
+
+    let drawing = false;
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect(); // It gives the position and size of the canvas on the screen.
+      const x = (e.clientX - rect.left);
+      const y = (e.clientY - rect.top);
+      return { x, y };
+    }
+
+    canvas.addEventListener("pointerdown", (e) => {
+      drawing = true;
+      const {x,y} = getPos(e);
+      ctx.beginPath(); //“Start a fresh drawing path.”
+      ctx.moveTo(x,y); //This moves the virtual pen to that location without drawing.
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+      if (!drawing) return;
+      const {x,y} = getPos(e);
+      ctx.lineTo(x,y); //It draws a continuous line through those points.When the mouse moves, we keep adding new points.That’s how the drawing follows your finger/mouse.
+      ctx.stroke(); //The path exists in memory until you render it. stroke() means:“Draw the outline of the path.”
+    });
+//     the sequence becomes:
+
+//     beginPath()
+//     moveTo(start)
+//     lineTo(newPoint)
+//     stroke()
+
+    canvas.addEventListener("pointerup", () => drawing = false);
+    canvas.addEventListener("pointerleave", () => drawing = false);
+
+    document.getElementById("clearBtn").onclick = () => {
+      ctx.fillStyle = "white";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      document.getElementById("result").innerText = "";
+    };
+
+    document.getElementById("predictBtn").onclick = async () => {
+      const image = canvas.toDataURL("image/png"); //The "image/png" argument specifies the image format. You could also do: image/jpeg, image/webp, but png is best for canvas
+      const res = await fetch("/predict", { //This sends a request to your Flask server.
+        method: "POST",
+        headers: { "Content-Type": "application/json" }, //This header tells the server: “The body of this request is JSON.” HTTP requests always include headers describing the data. Without this header, Flask might not parse the body correctly.
+        body: JSON.stringify({ image }) //JavaScript objects cannot be sent directly over HTTP,JSON.stringify() turns json to strings so it can be passed through http
+      });
+
+      const data = await res.json();
+      if (data.error) {
+        document.getElementById("result").innerText = "Error: " + data.error;
+        return;
+      }
+      document.getElementById("result").innerText =
+        `Prediction: ${data.prediction} (confidence: ${(data.confidence*100).toFixed(1)}%)`;
+    };
+  </script>
+</body>
+</html>
