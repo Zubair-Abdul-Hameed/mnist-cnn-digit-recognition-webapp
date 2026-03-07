@@ -71,20 +71,38 @@
     };
 
     document.getElementById("predictBtn").onclick = async () => {
-      const image = canvas.toDataURL("image/png"); //The "image/png" argument specifies the image format. You could also do: image/jpeg, image/webp, but png is best for canvas
-      const res = await fetch("/predict", { //This sends a request to your Flask server.
-        method: "POST",
-        headers: { "Content-Type": "application/json" }, //This header tells the server: “The body of this request is JSON.” HTTP requests always include headers describing the data. Without this header, Flask might not parse the body correctly.
-        body: JSON.stringify({ image }) //JavaScript objects cannot be sent directly over HTTP,JSON.stringify() turns json to strings so it can be passed through http
-      });
+      const image = canvas.toDataURL("image/png");
 
-      const data = await res.json();
-      if (data.error) {
-        document.getElementById("result").innerText = "Error: " + data.error;
-        return;
+      try {
+        const res = await fetch("/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image })
+        });
+
+        const text = await res.text();
+        let data;
+
+        try {
+          data = JSON.parse(text);
+        } catch {
+          document.getElementById("result").innerText =
+            `Server returned a non-JSON response (${res.status}).`;
+          return;
+        }
+
+        if (!res.ok) {
+          document.getElementById("result").innerText =
+            `Error: ${data.error || "Prediction failed"}`;
+          return;
+        }
+
+        document.getElementById("result").innerText =
+          `Prediction: ${data.prediction} (confidence: ${(data.confidence * 100).toFixed(1)}%)`;
+      } catch (err) {
+        document.getElementById("result").innerText =
+          `Request failed: ${err.message}`;
       }
-      document.getElementById("result").innerText =
-        `Prediction: ${data.prediction} (confidence: ${(data.confidence*100).toFixed(1)}%)`;
     };
   </script>
 </body>

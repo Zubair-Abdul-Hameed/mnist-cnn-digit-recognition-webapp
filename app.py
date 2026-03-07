@@ -6,6 +6,7 @@ from PIL import Image, ImageOps
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import traceback
 from flask import Flask, request, jsonify, render_template
 
 # --------- Model definition (same as training) ----------
@@ -101,24 +102,29 @@ def home():
 
 @app.post("/predict")
 def predict():
-    data = request.get_json()
-    if not data or "image" not in data:
-        return jsonify({"error": "Missing image"}), 400
+    try:
+        data = request.get_json()
+        if not data or "image" not in data:
+            return jsonify({"error": "Missing image"}), 400
 
-    # data["image"] looks like "data:image/png;base64,AAAA..."
-    b64 = data["image"].split(",")[-1]
-    img_bytes = base64.b64decode(b64)
-    pil_img = Image.open(io.BytesIO(img_bytes))
+        b64 = data["image"].split(",")[-1]
+        img_bytes = base64.b64decode(b64)
+        pil_img = Image.open(io.BytesIO(img_bytes)).convert("L")
 
-    x = preprocess_pil(pil_img).to(device)
+        x = preprocess_pil(pil_img).to(device)
 
-    with torch.no_grad():
-        logits = model(x)
-        pred = int(torch.argmax(logits, dim=1).item())
-        probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
-        conf = float(probs[pred])
+        with torch.no_grad():
+            logits = model(x)
+            pred = int(torch.argmax(logits, dim=1).item())
+            probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
+            conf = float(probs[pred])
 
-    return jsonify({"prediction": pred, "confidence": conf})
+        return jsonify({"prediction": pred, "confidence": conf})
+
+    except Exception as e:
+        print("PREDICT ERROR:", str(e))
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
