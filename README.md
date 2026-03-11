@@ -55,7 +55,7 @@ If you want to run the project locally and modify the code, follow these steps.
 
 1. Clone the repository
 ```
-git clone https://github.com/YOUR_USERNAME/mnist-digit-recognition-webapp.git
+git clone https://github.com/Zubair-Abdul-Hameed/mnist-digit-recognition-webapp.git
 cd mnist-digit-recognition-webapp
 ```
 
