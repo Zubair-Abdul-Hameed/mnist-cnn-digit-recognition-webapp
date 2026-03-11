@@ -1,44 +1,71 @@
 # MNIST Digit Recognition Web App
-### A CNN-powered handwritten digit recognizer with an interactive drawing canvas
+## A CNN-powered handwritten digit recognizer with an interactive drawing canvas
 
-This project is a simple end-to-end machine learning application that demonstrates how a trained Convolutional Neural Network (CNN) can be deployed as a web service. Users can draw a digit (0–9) directly on a canvas in the browser, and the model predicts the digit in real time.
+This project is a simple end-to-end machine learning application demonstrating how a trained Convolutional Neural Network (CNN) can be deployed as a web service.
 
-The backend is built using **Flask** and **PyTorch**, while the frontend uses **HTML, CSS, and JavaScript** with the browser Canvas API. The model was trained on the **MNIST handwritten digit dataset** and achieves around **~99% accuracy** on the test set.
+Users can draw a digit (0–9) directly in the browser using an interactive canvas, and the model predicts the digit in real time.
 
-The main goal of this project is to demonstrate the full ML pipeline:
+The backend is built with Flask and PyTorch, while the frontend uses HTML, CSS, and JavaScript with the browser Canvas API. The model was trained on the MNIST handwritten digit dataset and achieves around ~99% accuracy on the test set.
 
+The project demonstrates the complete ML inference pipeline:
 
-User drawing → Image preprocessing → Neural network inference → Prediction response
+```
+User Drawing
+      ↓
+Image Preprocessing
+      ↓
+Neural Network Inference
+      ↓
+Prediction Response
+```
 
+## Live Demo
 
----
+The application is deployed online and can be accessed here:
 
-# Visual Demonstration
+https://mnist-cnn-digit-recognition-webapp.onrender.com/
 
-![App Screenshot](IMAGE_LINK_HERE)
+Simply open the link and start drawing digits.
+
+No installation required.
+
+## Visual Demonstration
+![App Screenshot](/screenshot/app-screenshot.png)
 
 Example workflow:
 
-1. Draw a number on the canvas
-2. Click **Predict**
-3. The model returns its predicted digit and confidence score
+Draw a number on the canvas
 
----
+Click Predict
 
-# Installation Instructions (For Users)
+The model returns the predicted digit and confidence score
 
-If you simply want to run the app locally.
+## Installation Instructions (For Users)
 
-### 1. Clone the repository
+If you simply want to use the application, open the live deployment:
+```https://mnist-cnn-digit-recognition-webapp.onrender.com/```
+Draw a digit in the canvas and press Predict.
 
-```bash
+No setup is required.
+
+
+## Installation Instructions (For Collaborators / Developers)
+
+If you want to run the project locally and modify the code, follow these steps.
+
+1. Clone the repository
+```
 git clone https://github.com/YOUR_USERNAME/mnist-digit-recognition-webapp.git
 cd mnist-digit-recognition-webapp
+```
+
 2. Create a virtual environment
+```
 python -m venv venv
+```
 
-Activate it:
-
+3. Activate the virtual environment
+```
 Windows
 
 venv\Scripts\activate
@@ -46,123 +73,79 @@ venv\Scripts\activate
 Mac / Linux
 
 source venv/bin/activate
-3. Install dependencies
-pip install -r requirements.txt
-4. Run the application
-python app.py
-5. Open the browser
+```
 
+4. Install dependencies
+```
+pip install -r requirements.txt
+```
+5. Run the Flask development server
+```
+python app.py
+```
+6. Open the application
+```
 Visit:
 
 http://127.0.0.1:5000
+```
+You should now see the digit drawing canvas running locally.
 
-You should now see the drawing canvas.
+## Expectations for Contributors
 
-Installation Instructions (For Collaborators / Developers)
+Contributions are welcome. If you would like to improve the project, please follow these guidelines.
 
-If you want to modify the model, frontend, or deployment logic.
+### Code Standards
 
-Project Structure
-mnist-digit-recognition-webapp/
-│
-├── app.py                 # Flask backend server
-├── mnist_cnn.py           # Model training script
-├── mnist_cnn.pth          # Trained model weights
-├── requirements.txt
-│
-├── templates/
-│   └── index.html         # Frontend interface
-│
-└── README.md
-Development Setup
+• Keep functions small and readable
+• Add comments for complex or non-obvious logic
+• Follow consistent naming conventions
 
-Clone the repository
+### Suggested Areas for Improvement
 
-git clone https://github.com/YOUR_USERNAME/mnist-digit-recognition-webapp.git
+Possible improvements include:
 
-Create a virtual environment
+• Better digit preprocessing
+• Improved UI / UX
+• Support for uploaded images
+• Model architecture improvements
+• Mobile-friendly interface
 
-python -m venv venv
+### Contribution Workflow
 
-Activate it
+1. Fork the repository
 
-Install dependencies
+2. Create a feature branch
+```git checkout -b feature-name```
 
-pip install -r requirements.txt
+3. Commit your changes
 
-Run the Flask development server
+```git commit -m "Add feature description"```
 
-python app.py
-Training the Model
+4. Push the branch
 
-If you want to retrain the model:
+```git push origin feature-name```
 
-python mnist_cnn.py
+5. Open a Pull Request
 
-This will generate a new mnist_cnn.pth file.
-
-Expectations for Contributors
-
-Contributions are welcome. If you'd like to improve the project, please follow these guidelines.
-
-Code Standards
-
-Keep functions small and readable
-
-Add comments for non-obvious logic
-
-Follow consistent naming conventions
-
-Suggested Areas for Improvement
-
-Some possible improvements include:
-
-Better digit preprocessing
-
-Improved UI/UX
-
-Support for uploaded images
-
-Model improvements
-
-Mobile-friendly interface
-
-Contribution Workflow
-
-Fork the repository
-
-Create a feature branch
-
-git checkout -b feature-name
-
-Commit your changes
-
-git commit -m "Add feature description"
-
-Push the branch
-
-git push origin feature-name
-
-Open a Pull Request
-
-Known Issues
+## Known Issues
 1. Bounding Box Centering (Not Center-of-Mass)
 
-The current preprocessing centers the digit using a bounding box approach, meaning the smallest rectangle containing all digit pixels is cropped and centered.
+The current preprocessing centers digits using a bounding box approach, meaning the smallest rectangle containing all digit pixels is cropped and centered.
 
-However, the original MNIST preprocessing uses center-of-mass centering, which can produce slightly better alignment for digits that are skewed or asymmetrical.
+However, the original MNIST preprocessing uses center-of-mass centering, which can provide better alignment for skewed or asymmetrical digits.
 
-Future improvement:
+Possible improvement:
 
-Implement center-of-mass based centering.
+• Implement center-of-mass based centering.
 
 2. Rotation Sensitivity
 
-The model was trained on upright digits only, so rotated or upside-down digits may be misclassified.
+The model was trained only on upright digits, so rotated or upside-down digits may be misclassified.
 
-Possible solution:
+Possible improvement:
 
-Add data augmentation with rotations during training.
+• Use data augmentation with rotations during training.
 
 3. Stroke Thickness Variability
 
@@ -170,34 +153,36 @@ Canvas stroke thickness may vary between users, which can slightly affect predic
 
 Possible improvements:
 
-Normalize stroke width
-
-Apply morphological preprocessing
+• Normalize stroke width
+• Apply morphological preprocessing
 
 4. Distribution Mismatch
 
 The model expects MNIST-style inputs:
-
+```
 white digit on black background
 centered
-28×28 image
+28 × 28 image
+```
 
-User drawings may deviate from this distribution, which can reduce accuracy.
+User drawings may deviate from this distribution, which can reduce prediction accuracy.
 
-Better preprocessing could reduce this issue.
+Improved preprocessing could reduce this mismatch.
 
 Technologies Used
 
-Python
-
-PyTorch
-
-Flask
-
-HTML / CSS / JavaScript
-
-MNIST Dataset
+• Python
+• PyTorch
+• Flask
+• HTML / CSS / JavaScript
+• MNIST Dataset
 
 License
 
 This project is open-source and available under the MIT License.
+
+Author
+
+Abdul-Hameed Zubair
+
+⚜ ÎnFî-KnÎght ⚜
